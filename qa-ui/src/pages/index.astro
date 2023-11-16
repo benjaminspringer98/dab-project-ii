@@ -1,0 +1,10 @@
+---
+import Layout from "../layout/Layout.astro";
+import TestButton from "../components/TestButton.svelte";
+import CoursesList from "../components/CoursesList.svelte";
+---
+
+<Layout>
+  <CoursesList />
+  <TestButton client:only={"svelte"} />
+</Layout>
