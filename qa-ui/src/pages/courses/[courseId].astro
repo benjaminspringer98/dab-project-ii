@@ -1,5 +1,13 @@
 ---
+import Layout from "../../layout/Layout.astro";
+import Course from "../../components/Course.svelte";
+
 const id = Astro.params.courseId;
+
+const response = await fetch(`http://qa-api:7777/courses/${id}`);
+const course = await response.json();
 ---
 
-course {id}
+<Layout>
+    <Course {course} client:load />
+</Layout>
