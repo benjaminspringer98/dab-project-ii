@@ -1,5 +1,8 @@
 ---
-const id = Astro.params.questionId;
+import Question from "../../../../components/Question.svelte";
+
+const courseId = Astro.params.courseId;
+const questionId = Astro.params.questionId;
 ---
 
-question {id}
+<Question {courseId} {questionId} client:load />

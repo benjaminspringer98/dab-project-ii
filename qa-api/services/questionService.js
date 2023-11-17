@@ -6,7 +6,7 @@ const add = async (courseId, text, userUuid) => {
 
 // sort by most recent activity (question creation or upvote)
 const findAllByCourseId = async (courseId) => {
-    const rows = await sql`SELECT q.*, GREATEST(q.created_at, COALESCE(latest_upvote, '4713-01-01 00:00:00 BC')) as most_recent_activity
+    return await sql`SELECT q.*, GREATEST(q.created_at, COALESCE(latest_upvote, '4713-01-01 00:00:00 BC')) as most_recent_activity
                         FROM questions q
                         LEFT JOIN (
                             SELECT 
@@ -18,11 +18,8 @@ const findAllByCourseId = async (courseId) => {
                                 question_id
                         ) u ON q.id = u.question_id
                         WHERE q.course_id = ${courseId}
-                        ORDER BY most_recent_activity DESC`;
-
-    console.log("rows", rows)
-
-    return rows;
+                        ORDER BY most_recent_activity DESC
+                        LIMIT 20`;
 }
 
 const getUpvotesCount = async (questionId) => {

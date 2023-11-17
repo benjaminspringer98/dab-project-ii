@@ -47,6 +47,7 @@
 <div class="border-2 border-gray-200 rounded-md p-4 m-4">
     <p>{question.text}</p>
     <p>{question.user_uuid}</p>
+    <a href={`/courses/${courseId}/questions/${question.id}`}>Go</a>
 
     {#await upvoteDataPromise}
         <p>Loading...</p>
