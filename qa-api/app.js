@@ -1,6 +1,7 @@
 import { serve } from "./deps.js";
 import * as courseService from "./services/courseService.js";
 import * as questionService from "./services/questionService.js";
+import * as answerService from "./services/answerService.js";
 
 const getCourses = async (request) => {
   const courses = await courseService.findALl();
@@ -35,6 +36,13 @@ const getQuestions = async (request, urlPatternResuls) => {
   return new Response(JSON.stringify(questions));
 }
 
+const getQuestion = async (request, urlPatternResult) => {
+  const questionId = urlPatternResult.pathname.groups.qId;
+
+  const question = await questionService.findById(questionId);
+  return new Response(JSON.stringify(question));
+}
+
 const toggleQuestionUpvote = async (request, urlPatternResuls) => {
   const requestData = await request.json();
   const questionId = urlPatternResuls.pathname.groups.qId;
@@ -50,12 +58,57 @@ const toggleQuestionUpvote = async (request, urlPatternResuls) => {
 }
 
 // returns number of question upvotes and whether current user has upvoted
-const fetchUpvoteData = async (request, urlPatternResuls) => {
+const fetchQuestionUpvoteData = async (request, urlPatternResuls) => {
   const requestData = await request.json();
   const questionId = urlPatternResuls.pathname.groups.qId;
 
   const count = await questionService.getUpvotesCount(questionId);
   const hasUserUpvoted = await questionService.hasUserUpvoted(requestData.userUuid, questionId);
+  return new Response(JSON.stringify({ count, hasUserUpvoted }));
+}
+
+const getAnswers = async (request, urlPatternResuls) => {
+  const questionId = urlPatternResuls.pathname.groups.qId;
+
+  const answers = await answerService.findAllByQuestionId(questionId);
+  return new Response(JSON.stringify(answers));
+}
+
+const addAnswer = async (request, urlPatternResuls) => {
+  const requestData = await request.json();
+  const questionId = urlPatternResuls.pathname.groups.qId;
+
+  try {
+    await answerService.add(questionId, requestData.text, requestData.userUuid);
+  } catch (e) {
+    console.log(e);
+    return new Response(e.stack, { status: 500 })
+  }
+
+  return new Response({ status: 200 })
+}
+
+const toggleAnswerUpvote = async (request, urlPatternResuls) => {
+  const requestData = await request.json();
+  const answerId = urlPatternResuls.pathname.groups.aId;
+
+  try {
+    await answerService.toggleUpvote(answerId, requestData.userUuid);
+  } catch (e) {
+    console.log(e);
+    return new Response(e.stack, { status: 500 })
+  }
+
+  return new Response({ status: 200 })
+}
+
+// returns number of question upvotes and whether current user has upvoted
+const fetchAnswerUpvoteData = async (request, urlPatternResuls) => {
+  const requestData = await request.json();
+  const answerId = urlPatternResuls.pathname.groups.aId;
+
+  const count = await answerService.getUpvotesCount(answerId);
+  const hasUserUpvoted = await answerService.hasUserUpvoted(requestData.userUuid, answerId);
   return new Response(JSON.stringify({ count, hasUserUpvoted }));
 }
 
@@ -81,6 +134,11 @@ const urlMapping = [
     fn: getQuestions,
   },
   {
+    method: "GET",
+    pattern: new URLPattern({ pathname: "/courses/:cId/questions/:qId" }),
+    fn: getQuestion,
+  },
+  {
     method: "POST",
     pattern: new URLPattern({ pathname: "/courses/:cId/questions/:qId/toggleUpvote" }),
     fn: toggleQuestionUpvote,
@@ -88,7 +146,27 @@ const urlMapping = [
   {
     method: "POST",
     pattern: new URLPattern({ pathname: "/courses/:cId/questions/:qId/upvotes" }),
-    fn: fetchUpvoteData,
+    fn: fetchQuestionUpvoteData,
+  },
+  {
+    method: "GET",
+    pattern: new URLPattern({ pathname: "/courses/:cId/questions/:qId/answers" }),
+    fn: getAnswers,
+  },
+  {
+    method: "POST",
+    pattern: new URLPattern({ pathname: "/courses/:cId/questions/:qId/answers" }),
+    fn: addAnswer,
+  },
+  {
+    method: "POST",
+    pattern: new URLPattern({ pathname: "/courses/:cId/questions/:qId/answers/:aId/toggleUpvote" }),
+    fn: toggleAnswerUpvote,
+  },
+  {
+    method: "POST",
+    pattern: new URLPattern({ pathname: "/courses/:cId/questions/:qId/answers/:aId/upvotes" }),
+    fn: fetchAnswerUpvoteData,
   },
 ]
 

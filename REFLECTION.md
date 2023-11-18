@@ -1,6 +1,13 @@
 TODO: There is a brief description of the application in REFLECTION.md that highlights key design decisions for the application. The document also contains a reflection of possible improvements that should be done to improve the performance of the application.
 
+# Key design decisions
+
+## Basic functionality
+
+- users can upvote questions/answers and undo their own upvotes
+
 ## Server Side Rendering (SSR)
+
 - as there is a lot of nested data (e.g. courses can have multiple questions), dynamic routing was implemented
 - this allows routes like /courses/1/questions/5
 - this requires SSR, which in turn requires an adapter
