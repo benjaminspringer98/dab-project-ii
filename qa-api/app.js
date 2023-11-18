@@ -1,7 +1,9 @@
-import { serve } from "./deps.js";
+import { serve, connect } from "./deps.js";
 import * as courseService from "./services/courseService.js";
 import * as questionService from "./services/questionService.js";
 import * as answerService from "./services/answerService.js";
+
+const redis = await connect({ hostname: "redis-queue", port: 6379 });
 
 const getCourses = async (request) => {
   const courses = await courseService.findALl();
@@ -19,12 +21,22 @@ const addQuestion = async (request, urlPatternResuls) => {
   const requestData = await request.json();
   const courseId = urlPatternResuls.pathname.groups.cId;
 
+  let questionId;
   try {
-    await questionService.add(courseId, requestData.text, requestData.userUuid);
+    questionId = await questionService.add(courseId, requestData.text, requestData.userUuid);
   } catch (e) {
     console.log(e);
     return new Response(e.stack, { status: 500 })
   }
+
+  const data = {
+    courseId: courseId,
+    questionId: questionId,
+    questionText: requestData.text,
+  };
+
+  // push into queue for async processing
+  await redis.lpush("questions_queue", JSON.stringify(data));
 
   return new Response({ status: 200 })
 }
