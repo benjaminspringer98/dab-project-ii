@@ -27,7 +27,10 @@ the query to get the 20 most recent questions/answers by around 50%
 
 ## Caching
 
-- Caching is beneficial, when there are more read than write operations
+- Caching in general is beneficial, when there are more read than write operations
 - it would be nice to cache the big query which gets the 20 most recent questions / answers, however in such an application, caches would have to be purged very frequently, because of the upvote mechanism being used a lot
-- therefore, caching of db results is not implemented here
+- purging every time a user upvotes a question would add a lot of overhead
 - further, postgres has some internal caching mechanism implemented, which diminishes the returns of self-built caching solutions anyways
+- therefore, caching of db results is not implemented for most the question and answer services
+- However, the findById query for questions and all queries for courses can easily be cached 
+- as there is no functionality to create/delete courses, or delete questions through the API, these caches wouldn't even need to be purged
