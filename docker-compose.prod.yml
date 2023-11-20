@@ -79,3 +79,24 @@ services:
       - nginx
     volumes:
       - ./e2e-playwright/tests:/e2e-playwright/tests
+
+  redis-queue:
+    image: redis:latest
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./redis-queue/redis.conf:/usr/local/etc/redis/redis.conf
+    expose:
+      - 6379
+
+  qa-consumer:
+    build: qa-consumer
+    image: qa-consumer
+    restart: "no"
+    volumes:
+      - ./qa-consumer/:/app
+      - ./app-cache/:/app-cache
+    depends_on:
+      - llm-api
+      - qa-api
+    env_file:
+      - project.env

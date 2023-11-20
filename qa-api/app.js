@@ -29,10 +29,14 @@ const addQuestion = async (request, urlPatternResuls) => {
     return new Response(e.stack, { status: 500 })
   }
 
+  if (!questionId) {
+    return new Response("Failed to add question", { status: 500 })
+  }
+
+  // dont push question text into queue, instead push question id
   const data = {
     courseId: courseId,
     questionId: questionId,
-    questionText: requestData.text,
   };
 
   // push into queue for async processing
@@ -89,6 +93,7 @@ const getAnswers = async (request, urlPatternResuls) => {
 const addAnswer = async (request, urlPatternResuls) => {
   const requestData = await request.json();
   const questionId = urlPatternResuls.pathname.groups.qId;
+  console.log("addAnswer got requestData ", requestData)
 
   try {
     await answerService.add(questionId, requestData.text, requestData.userUuid);

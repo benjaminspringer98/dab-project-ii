@@ -18,3 +18,8 @@ TODO: There is a brief description of the application in REFLECTION.md that high
 
 - a message queue for user submitted questions/answers wouldn't benefit a lot here, as questions/answers are just added to the database, in comparison to the project 1, where each submission required starting a separate Docker container
 - as LLM answers take while to generate, a message queue is used here
+- qa-api writes 
+
+## Future outlook: Improving performance
+
+- one could most likely improve the indexing or database denormalization, as I did not feel fully competent enough to do this through the lecture materials, and doing a bit of research on my own
