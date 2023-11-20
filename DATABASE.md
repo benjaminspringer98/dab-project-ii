@@ -27,4 +27,7 @@ the query to get the 20 most recent questions/answers by around 50%
 
 ## Caching
 
-TODO for merits
+- Caching is beneficial, when there are more read than write operations
+- it would be nice to cache the big query which gets the 20 most recent questions / answers, however in such an application, caches would have to be purged very frequently, because of the upvote mechanism being used a lot
+- therefore, caching of db results is not implemented here
+- further, postgres has some internal caching mechanism implemented, which diminishes the returns of self-built caching solutions anyways

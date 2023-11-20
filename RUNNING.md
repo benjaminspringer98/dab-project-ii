@@ -32,3 +32,24 @@ TODO: For merits, the RUNNING.md also outlines the steps needed to use Kubernete
 - to stop containers, run `docker compose down`
 
 ## Kubernetes
+
+## Tests
+
+### End-to-End Tests
+
+- first run `docker compose up` in one terminal
+- then run E2E tests with Playwright in another terminal:
+  `docker-compose run --entrypoint=npx e2e-playwright playwright test && docker-compose rm -sf`
+- notes:
+  - I had to add the line `RUN npx playwright install` to the Playwright
+    Dockerfile, because it just stopped working randomly at some point
+  - if you are interested, the error was
+    `Error: browserType.launch: Executable doesn't exist at /ms-playwright/chromium-1080/chrome-linux/chrome`
+  - if you run into any problems, try removing the above mentioned line and
+    building the image again
+
+### Performance tests
+
+1. have k6 installed
+2. run `docker compose up` in one terminal
+3. another terminal: cd into k6 folder and run `k6 run <test-file>`

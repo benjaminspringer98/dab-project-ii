@@ -38,7 +38,7 @@
     let answerPromise = getAnswers();
 </script>
 
-<p class="text-lg">{question.text}</p>
+<p id="questionText" class="text-lg">{question.text}</p>
 <textarea
     id="answerText"
     bind:value={answerText}

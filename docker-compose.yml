@@ -83,12 +83,12 @@ services:
     expose:
       - 6379
 
-  qa-consumer:
-    build: qa-consumer
-    image: qa-consumer
+  qa-bot:
+    build: qa-bot
+    image: qa-bot
     restart: "no"
     volumes:
-      - ./qa-consumer/:/app
+      - ./qa-bot/:/app
       - ./app-cache/:/app-cache
     depends_on:
       - llm-api

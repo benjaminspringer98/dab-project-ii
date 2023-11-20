@@ -3,8 +3,6 @@ CREATE TABLE courses (
   name TEXT NOT NULL
 );
 
-INSERT INTO courses (name) VALUES ('Designing and Developing Scalable Web Applications');
-
 CREATE TABLE questions (
     id SERIAL PRIMARY KEY,
     course_id INTEGER REFERENCES courses(id),

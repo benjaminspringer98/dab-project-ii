@@ -14,6 +14,11 @@ const getCourse = async (request, urlPatternResult) => {
   const courseId = urlPatternResult.pathname.groups.cId;
 
   const course = await courseService.findById(courseId);
+
+  if (!course) {
+    return new Response(JSON.stringify({ status: 404 }))
+  }
+
   return new Response(JSON.stringify(course));
 }
 
@@ -26,11 +31,11 @@ const addQuestion = async (request, urlPatternResuls) => {
     questionId = await questionService.add(courseId, requestData.text, requestData.userUuid);
   } catch (e) {
     console.log(e);
-    return new Response(e.stack, { status: 500 })
+    return new Response({ status: 500 })
   }
 
   if (!questionId) {
-    return new Response("Failed to add question", { status: 500 })
+    return new Response({ status: 500 })
   }
 
   // dont push question text into queue, instead push question id
@@ -56,6 +61,11 @@ const getQuestion = async (request, urlPatternResult) => {
   const questionId = urlPatternResult.pathname.groups.qId;
 
   const question = await questionService.findById(questionId);
+
+  if (!question) {
+    return new Response(JSON.stringify({ status: 404 }))
+  }
+
   return new Response(JSON.stringify(question));
 }
 

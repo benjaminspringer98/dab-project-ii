@@ -4,7 +4,10 @@ TODO: There is a brief description of the application in REFLECTION.md that high
 
 ## Basic functionality
 
+- users can create questions and answer questions
 - users can upvote questions/answers and undo their own upvotes
+- llm generates 3 answers for each question
+- maximum of twenty questions and answers are shown on the course page and the question page
 
 ## Server Side Rendering (SSR)
 
@@ -16,9 +19,10 @@ TODO: There is a brief description of the application in REFLECTION.md that high
 
 ## Message queue
 
-- a message queue for user submitted questions/answers wouldn't benefit a lot here, as questions/answers are just added to the database, in comparison to the project 1, where each submission required starting a separate Docker container
-- as LLM answers take while to generate, a message queue is used here
-- qa-api writes 
+- a message queue for user submitted questions/answers wouldn't benefit us a lot here, as questions/answers are just added to the database, in comparison to the project 1, where each submission required starting a separate Docker container
+- as LLM answers take while to generate, a Redis message queue is used here
+- qa-api writes into the queue, qa-bot reads from the queue, calls llm-api, and posts llm response back to qa-api
+- this creates a decoupling, where the main qa-api does not care when e.g. the qa-bot crashes 
 
 ## Future outlook: Improving performance
 
