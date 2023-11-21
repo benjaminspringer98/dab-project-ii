@@ -6,6 +6,7 @@ ENV PATH /app/node_modules/.bin:$PATH
 
 COPY *.json ./
 
+# I ran into some weird depency conflicts with astro, svelte and tailwind, so this was needed
 RUN npm install --legacy-peer-deps
 
 COPY . .

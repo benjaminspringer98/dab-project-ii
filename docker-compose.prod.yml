@@ -15,19 +15,25 @@ services:
       - 7800:7800
 
   qa-api:
-    build: qa-api
-    image: qa-api
-    restart: "no"
-    volumes:
-      - ./qa-api/:/app
-      - ./app-cache/:/app-cache
+    build: 
+      context: qa-api
+      dockerfile: Dockerfile.prod
+    image: qa-api-prod
+    restart: "on-failure"
     expose:
       - 7777
     depends_on:
       - database
       - flyway
+      - redis-queue
     env_file:
       - project.env
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: "5s"
+        max_attempts: 5
+        window: "30s"
 
   qa-ui:
     build:
@@ -49,14 +55,22 @@ services:
   llm-api:
     build: llm-api
     image: llm-api
-    restart: "no"
+    restart: "on-failure"
     expose:
       - 7000
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: "5s"
+        max_attempts: 5
+        window: "30s"
 
   database:
     container_name: database-server-dab-p2-86ac7da7-2a29-45c4-8806-ad42e0e7353e
     image: postgres:14.1
-    restart: "no"
+    restart: unless-stopped
+    volumes:
+      - ./production-database-data:/var/lib/postgresql/data
     env_file:
       - project.env
 
@@ -91,12 +105,16 @@ services:
   qa-bot:
     build: qa-bot
     image: qa-bot
-    restart: "no"
-    volumes:
-      - ./qa-bot/:/app
-      - ./app-cache/:/app-cache
+    restart: "on-failure"
     depends_on:
       - llm-api
       - qa-api
+      - redis-queue
     env_file:
       - project.env
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: "5s"
+        max_attempts: 5
+        window: "30s"

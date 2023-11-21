@@ -26,6 +26,7 @@ services:
     depends_on:
       - database
       - flyway
+      - redis-queue
     env_file:
       - project.env
 
@@ -93,5 +94,6 @@ services:
     depends_on:
       - llm-api
       - qa-api
+      - redis-queue
     env_file:
       - project.env
