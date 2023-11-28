@@ -5,6 +5,7 @@
     import QuestionCard from "./QuestionCard.svelte";
 
     let questionText = "";
+    let errorMessage = "";
 
     const submit = async () => {
         const data = {
@@ -12,13 +13,32 @@
             text: questionText,
         };
 
-        const response = await fetch(`/api/courses/${course.id}/questions`, {
+        try {
+            const response = await sendQuestion(data);
+            handleResponse(response);
+        } catch (error) {
+            errorMessage = error.message;
+        }
+    };
+
+    const sendQuestion = async (data) => {
+        return await fetch(`/api/courses/${course.id}/questions`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(data),
         });
+    };
+
+    const handleResponse = (response) => {
+        if (!response.ok) {
+            throw new Error(
+                response.status === 429
+                    ? "You can only create one question per minute."
+                    : "An error occurred, please try again.",
+            );
+        }
 
         questionText = "";
         questionsPromise = getQuestions();
@@ -50,6 +70,10 @@
 </button>
 
 <!-- <QuestionsList courseId={course.id} /> -->
+
+{#if errorMessage}
+    <p class="error-message">{errorMessage}</p>
+{/if}
 
 {#await questionsPromise}
     <p>Loading...</p>

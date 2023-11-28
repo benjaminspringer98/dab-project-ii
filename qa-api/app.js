@@ -26,6 +26,13 @@ const addQuestion = async (request, urlPatternResuls) => {
   const requestData = await request.json();
   const courseId = urlPatternResuls.pathname.groups.cId;
 
+  // one question per minute per user
+  const hasUserCreatedInLastMinute = await questionService.hasUserCreatedInLastMinute(requestData.userUuid)
+  console.log("hasUserCreatedInLastMinute", hasUserCreatedInLastMinute);
+  if (hasUserCreatedInLastMinute) {
+    return new Response("Too many requests", { status: 429 })
+  }
+
   let questionId;
   try {
     questionId = await questionService.add(courseId, requestData.text, requestData.userUuid);
@@ -103,7 +110,13 @@ const getAnswers = async (request, urlPatternResuls) => {
 const addAnswer = async (request, urlPatternResuls) => {
   const requestData = await request.json();
   const questionId = urlPatternResuls.pathname.groups.qId;
-  console.log("addAnswer got requestData ", requestData)
+
+  // one answer per minute per user
+  const hasUserCreatedInLastMinute = await answerService.hasUserCreatedInLastMinute(requestData.userUuid)
+  console.log("hasUserCreatedInLastMinute", hasUserCreatedInLastMinute);
+  if (hasUserCreatedInLastMinute) {
+    return new Response("Too many requests", { status: 429 })
+  }
 
   try {
     await answerService.add(questionId, requestData.text, requestData.userUuid);

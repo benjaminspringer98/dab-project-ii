@@ -42,4 +42,19 @@ const toggleUpvote = async (answerId, userUuid) => {
     await sql`INSERT into upvotes (answer_id, user_uuid, type, created_at) VALUES (${answerId}, ${userUuid}, 'answer', NOW())`;
 }
 
-export { add, findAllByQuestionId, getUpvotesCount, hasUserUpvoted, toggleUpvote }
+const hasUserCreatedInLastMinute = async (userUuid) => {
+    const lastQuestion = await sql`SELECT * FROM answers WHERE user_uuid = ${userUuid} ORDER BY created_at DESC LIMIT 1`;
+
+    if (lastQuestion.length > 0) {
+        const lastQuestionTime = lastQuestion[0].created_at;
+        const now = new Date();
+        const diff = now - lastQuestionTime;
+        const seconds = Math.floor(diff / 1000);
+        console.log("seconds: " + seconds);
+        return seconds <= 60;
+    }
+
+    return false;
+}
+
+export { add, findAllByQuestionId, getUpvotesCount, hasUserUpvoted, toggleUpvote, hasUserCreatedInLastMinute }

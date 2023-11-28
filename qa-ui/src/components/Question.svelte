@@ -6,6 +6,7 @@
     import AnswerCard from "./AnswerCard.svelte";
 
     let answerText = "";
+    let errorMessage = "";
 
     const submit = async () => {
         const data = {
@@ -13,7 +14,16 @@
             text: answerText,
         };
 
-        const response = await fetch(
+        try {
+            const response = await sendQuestion(data);
+            handleResponse(response);
+        } catch (error) {
+            errorMessage = error.message;
+        }
+    };
+
+    const sendQuestion = async (data) => {
+        return await fetch(
             `/api/courses/${courseId}/questions/${question.id}/answers`,
             {
                 method: "POST",
@@ -21,16 +31,47 @@
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(data),
-            }
+            },
         );
+    };
+
+    const handleResponse = (response) => {
+        if (!response.ok) {
+            throw new Error(
+                response.status === 429
+                    ? "You can only create one answer per minute."
+                    : "An error occurred, please try again.",
+            );
+        }
 
         answerText = "";
         answerPromise = getAnswers();
     };
 
+    // const submit = async () => {
+    //     const data = {
+    //         userUuid: $userUuid,
+    //         text: answerText,
+    //     };
+
+    //     const response = await fetch(
+    //         `/api/courses/${courseId}/questions/${question.id}/answers`,
+    //         {
+    //             method: "POST",
+    //             headers: {
+    //                 "Content-Type": "application/json",
+    //             },
+    //             body: JSON.stringify(data),
+    //         },
+    //     );
+
+    //     answerText = "";
+    //     answerPromise = getAnswers();
+    // };
+
     const getAnswers = async () => {
         const response = await fetch(
-            `/api/courses/${courseId}/questions/${question.id}/answers`
+            `/api/courses/${courseId}/questions/${question.id}/answers`,
         );
         return await response.json();
     };
@@ -56,6 +97,10 @@
 </button>
 
 <!-- <QuestionsList courseId={course.id} /> -->
+
+{#if errorMessage}
+    <p class="error-message">{errorMessage}</p>
+{/if}
 
 {#await answerPromise}
     <p>Loading...</p>
