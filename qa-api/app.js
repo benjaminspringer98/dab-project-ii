@@ -60,7 +60,14 @@ const addQuestion = async (request, urlPatternResuls) => {
 const getQuestions = async (request, urlPatternResuls) => {
   const courseId = urlPatternResuls.pathname.groups.cId;
 
-  const questions = await questionService.findAllByCourseId(courseId);
+  const url = new URL(request.url);
+  console.log("url", url)
+  const params = url.searchParams;
+  const pageNumber = params.get("page");
+  console.log("pageNumber", pageNumber)
+  // const questions = await questionService.findAllByCourseId(courseId);
+
+  const questions = await questionService.findAllByCourseIdPaginated(courseId, pageNumber);
   return new Response(JSON.stringify(questions));
 }
 

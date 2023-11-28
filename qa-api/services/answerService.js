@@ -43,6 +43,11 @@ const toggleUpvote = async (answerId, userUuid) => {
 }
 
 const hasUserCreatedInLastMinute = async (userUuid) => {
+    // don't limit LLM generated answers
+    if (userUuid === "Drunk Bot") {
+        return false;
+    }
+
     const lastQuestion = await sql`SELECT * FROM answers WHERE user_uuid = ${userUuid} ORDER BY created_at DESC LIMIT 1`;
 
     if (lastQuestion.length > 0) {

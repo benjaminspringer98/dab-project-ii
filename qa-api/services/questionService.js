@@ -36,6 +36,26 @@ const findAllByCourseId = async (courseId) => {
                         LIMIT 20`;
 }
 
+const findAllByCourseIdPaginated = async (courseId, pageNumber) => {
+    const questionsPerPage = 20;
+    const offset = (pageNumber - 1) * questionsPerPage;
+
+    return await sql`SELECT q.*, GREATEST(q.created_at, COALESCE(latest_upvote, '4713-01-01 00:00:00 BC')) as most_recent_activity
+                        FROM questions q
+                        LEFT JOIN (
+                            SELECT 
+                                question_id, 
+                                MAX(created_at) as latest_upvote
+                            FROM 
+                                upvotes
+                            GROUP BY 
+                                question_id
+                        ) u ON q.id = u.question_id
+                        WHERE q.course_id = ${courseId}
+                        ORDER BY most_recent_activity DESC
+                        LIMIT ${questionsPerPage} OFFSET ${offset}`;
+}
+
 const getUpvotesCount = async (questionId) => {
     const upvotes = await sql`SELECT COUNT(*) FROM upvotes WHERE question_id = ${questionId}`;
     return upvotes[0].count;
@@ -71,4 +91,4 @@ const hasUserCreatedInLastMinute = async (userUuid) => {
     return false;
 }
 
-export { add, findById, findAllByCourseId, getUpvotesCount, hasUserUpvoted, toggleUpvote, hasUserCreatedInLastMinute }
+export { add, findById, findAllByCourseId, findAllByCourseIdPaginated, getUpvotesCount, hasUserUpvoted, toggleUpvote, hasUserCreatedInLastMinute }
