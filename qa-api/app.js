@@ -5,6 +5,12 @@ import * as answerService from "./services/answerService.js";
 
 const redis = await connect({ hostname: "redis-queue", port: 6379 });
 
+const sockets = new Set();
+
+const sendMessage = (event) => {
+  sockets.forEach((socket) => socket.send(event.data));
+};
+
 const getCourses = async (request) => {
   const courses = await courseService.findALl();
   return new Response(JSON.stringify(courses));
@@ -28,7 +34,6 @@ const addQuestion = async (request, urlPatternResuls) => {
 
   // one question per minute per user
   const hasUserCreatedInLastMinute = await questionService.hasUserCreatedInLastMinute(requestData.userUuid)
-  console.log("hasUserCreatedInLastMinute", hasUserCreatedInLastMinute);
   if (hasUserCreatedInLastMinute) {
     return new Response("Too many requests", { status: 429 })
   }
@@ -51,7 +56,11 @@ const addQuestion = async (request, urlPatternResuls) => {
     questionId: questionId,
   };
 
-  // push into queue for async processing
+  const question = await questionService.findById(questionId);
+  const message = JSON.stringify(question);
+  sockets.forEach((socket) => socket.send(message));
+
+  // push into queue for async generation of llm answers
   await redis.lpush("questions_queue", JSON.stringify(data));
 
   return new Response({ status: 200 })
@@ -61,10 +70,8 @@ const getQuestions = async (request, urlPatternResuls) => {
   const courseId = urlPatternResuls.pathname.groups.cId;
 
   const url = new URL(request.url);
-  console.log("url", url)
   const params = url.searchParams;
   const pageNumber = params.get("page");
-  console.log("pageNumber", pageNumber)
   // const questions = await questionService.findAllByCourseId(courseId);
 
   const questions = await questionService.findAllByCourseIdPaginated(courseId, pageNumber);
@@ -120,7 +127,6 @@ const addAnswer = async (request, urlPatternResuls) => {
 
   // one answer per minute per user
   const hasUserCreatedInLastMinute = await answerService.hasUserCreatedInLastMinute(requestData.userUuid)
-  console.log("hasUserCreatedInLastMinute", hasUserCreatedInLastMinute);
   if (hasUserCreatedInLastMinute) {
     return new Response("Too many requests", { status: 429 })
   }
@@ -157,6 +163,21 @@ const fetchAnswerUpvoteData = async (request, urlPatternResuls) => {
   const count = await answerService.getUpvotesCount(answerId);
   const hasUserUpvoted = await answerService.hasUserUpvoted(requestData.userUuid, answerId);
   return new Response(JSON.stringify({ count, hasUserUpvoted }));
+}
+
+const connectToWebsocket = async (request) => {
+  const { socket, response } = Deno.upgradeWebSocket(request);
+
+  // Add the new socket to the global set
+  sockets.add(socket);
+
+  socket.onclose = () => {
+    // Remove the socket from the set when it's closed
+    console.log("socket closed", socket)
+    sockets.delete(socket);
+  };
+
+  return response;
 }
 
 const urlMapping = [
@@ -214,6 +235,11 @@ const urlMapping = [
     method: "POST",
     pattern: new URLPattern({ pathname: "/courses/:cId/questions/:qId/answers/:aId/upvotes" }),
     fn: fetchAnswerUpvoteData,
+  },
+  {
+    method: "GET",
+    pattern: new URLPattern({ pathname: "/ws" }),
+    fn: connectToWebsocket,
   },
 ]
 

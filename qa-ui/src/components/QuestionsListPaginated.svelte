@@ -1,17 +1,19 @@
 <script>
     export let course;
     import { userUuid } from "../stores/stores.js";
-    import { onMount } from "svelte";
+    import { onMount, onDestroy } from "svelte";
     import QuestionCard from "./QuestionCard.svelte";
 
     let page = 1;
     let data = [];
     let newBatch = [];
     let hasMoreData = true;
+    const offset = 200; // Pixels from the bottom of the page to trigger data fetch
+
     let questionText = "";
     let errorMessage = "";
 
-    const offset = 200; // Pixels from the bottom of the page to trigger data fetch
+    let ws;
 
     async function fetchData() {
         if (!hasMoreData) return; // Prevent fetching if no more data is available
@@ -42,6 +44,22 @@
                 fetchData();
             }
         });
+
+        const host = window.location.hostname;
+        ws = new WebSocket("ws://" + host + ":7800/api/ws");
+
+        ws.onmessage = (event) => {
+            console.log(event.data);
+            const question = JSON.parse(event.data);
+            data = [question, ...data];
+            console.log(data);
+        };
+
+        return () => {
+            if (ws.readyState === 1) {
+                ws.close();
+            }
+        };
     });
 
     const submit = async () => {
@@ -81,6 +99,12 @@
         fetchData();
     };
 </script>
+
+<!-- <ul>
+    {#each events as event}
+        <li>{event}</li>
+    {/each}
+</ul> -->
 
 <h2 class="text-center text-2xl">{course.name}</h2>
 <textarea
