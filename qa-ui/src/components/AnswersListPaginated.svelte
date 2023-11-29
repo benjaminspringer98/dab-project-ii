@@ -48,7 +48,9 @@
         });
 
         const host = window.location.hostname;
-        ws = new WebSocket("ws://" + host + `:7800/api/ws/${question.id}`);
+        ws = new WebSocket(
+            "ws://" + host + `:7800/api/ws/questions/${question.id}`,
+        );
 
         ws.onmessage = (event) => {
             console.log(event.data);
