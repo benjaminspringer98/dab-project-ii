@@ -3,7 +3,7 @@ const { test, expect } = require("@playwright/test");
 test("User can click on course to open course page", async ({ page }) => {
   await page.goto("/");
   await page.waitForTimeout(1000);
-  const courseName = 'Designing and Developing Scalable Web Applications'
+  const courseName = 'Designing and Building Scalable Web Applications'
   await page.locator(`a >> text='${courseName}'`).click();
 
   await expect(page.locator("h2")).toHaveText(courseName);

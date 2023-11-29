@@ -24,6 +24,15 @@ TODO: There is a brief description of the application in REFLECTION.md that high
 - qa-api writes into the queue, qa-bot reads from the queue, calls llm-api, and posts llm response back to qa-api
 - this creates a decoupling, where the main qa-api does not care when e.g. the qa-bot crashes
 
+## Real time updates
+
+- when new questions/answers are created, they are shown to the user in real time
+- Websockets are used for this, with the two endpoints `/api/ws/:cId` and `/api/ws/:qId`
+- first is for new questions for a courseId, second for new answers for a questionId
+- on opening one of the pages, the question/answer id and websocket are added to a map
+- when a question/answer is created, all connected sockets in the map with the corresponding question/answer id are notified with the created object
+- on page close the socket and id are removed from the map
+
 ## Dev vs. Prod config
 
 Prod:

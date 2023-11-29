@@ -17,7 +17,7 @@ TODO: For merits, the RUNNING.md also outlines the steps needed to use Kubernete
 #### Troubleshooting (please read these!)
 
 - sometimes flyway won't start on the first run, leading to undefined values
-  being shown in the frontend, as the database tables to not yet exist then
+  being shown in the frontend, or the error "Unexpected token 'P', "PostgresEr"... is not valid JSON", as the database tables to not yet exist then
 - in this case stop the containers with `ctrl + c` and re-run them
 - sometimes this can happen multiple times (at least on my pc), I have no idea
   why though

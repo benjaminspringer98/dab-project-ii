@@ -5,11 +5,9 @@ import * as answerService from "./services/answerService.js";
 
 const redis = await connect({ hostname: "redis-queue", port: 6379 });
 
-const sockets = new Set();
-
-const sendMessage = (event) => {
-  sockets.forEach((socket) => socket.send(event.data));
-};
+// const sockets = new Set();
+// separate websocket rooms for courses and questions
+const rooms = new Map();
 
 const getCourses = async (request) => {
   const courses = await courseService.findALl();
@@ -34,9 +32,9 @@ const addQuestion = async (request, urlPatternResuls) => {
 
   // one question per minute per user
   const hasUserCreatedInLastMinute = await questionService.hasUserCreatedInLastMinute(requestData.userUuid)
-  if (hasUserCreatedInLastMinute) {
-    return new Response("Too many requests", { status: 429 })
-  }
+  // if (hasUserCreatedInLastMinute) {
+  //   return new Response("Too many requests", { status: 429 })
+  // }
 
   let questionId;
   try {
@@ -57,8 +55,9 @@ const addQuestion = async (request, urlPatternResuls) => {
   };
 
   const question = await questionService.findById(questionId);
-  const message = JSON.stringify(question);
-  sockets.forEach((socket) => socket.send(message));
+  // send question to all sockets in room with corresponding courseId
+  const socketsInRoom = [...rooms.entries()].filter(([socket, room]) => room === courseId).map(([socket, room]) => socket);
+  socketsInRoom.forEach((socket) => socket.send(JSON.stringify(question)));
 
   // push into queue for async generation of llm answers
   await redis.lpush("questions_queue", JSON.stringify(data));
@@ -72,7 +71,6 @@ const getQuestions = async (request, urlPatternResuls) => {
   const url = new URL(request.url);
   const params = url.searchParams;
   const pageNumber = params.get("page");
-  // const questions = await questionService.findAllByCourseId(courseId);
 
   const questions = await questionService.findAllByCourseIdPaginated(courseId, pageNumber);
   return new Response(JSON.stringify(questions));
@@ -117,7 +115,13 @@ const fetchQuestionUpvoteData = async (request, urlPatternResuls) => {
 const getAnswers = async (request, urlPatternResuls) => {
   const questionId = urlPatternResuls.pathname.groups.qId;
 
-  const answers = await answerService.findAllByQuestionId(questionId);
+  const url = new URL(request.url);
+  const params = url.searchParams;
+  const pageNumber = params.get("page");
+
+  const answers = await answerService.findAllByQuestionIdPaginated(questionId, pageNumber);
+
+  // const answers = await answerService.findAllByQuestionId(questionId);
   return new Response(JSON.stringify(answers));
 }
 
@@ -127,16 +131,27 @@ const addAnswer = async (request, urlPatternResuls) => {
 
   // one answer per minute per user
   const hasUserCreatedInLastMinute = await answerService.hasUserCreatedInLastMinute(requestData.userUuid)
-  if (hasUserCreatedInLastMinute) {
-    return new Response("Too many requests", { status: 429 })
-  }
+  // if (hasUserCreatedInLastMinute) {
+  //   return new Response("Too many requests", { status: 429 })
+  // }
 
+  let answerId;
   try {
-    await answerService.add(questionId, requestData.text, requestData.userUuid);
+    answerId = await answerService.add(questionId, requestData.text, requestData.userUuid);
   } catch (e) {
     console.log(e);
     return new Response(e.stack, { status: 500 })
   }
+
+  if (!answerId) {
+    return new Response({ status: 500 })
+  }
+
+  const answer = await answerService.findById(answerId);
+
+  // send answer to all sockets in room with corresponding questionId
+  const socketsInRoom = [...rooms.entries()].filter(([socket, room]) => room === questionId).map(([socket, room]) => socket);
+  socketsInRoom.forEach((socket) => socket.send(JSON.stringify(answer)));
 
   return new Response({ status: 200 })
 }
@@ -165,16 +180,33 @@ const fetchAnswerUpvoteData = async (request, urlPatternResuls) => {
   return new Response(JSON.stringify({ count, hasUserUpvoted }));
 }
 
-const connectToWebsocket = async (request) => {
+const connectToCourseRoom = async (request, urlPatternResuls) => {
   const { socket, response } = Deno.upgradeWebSocket(request);
 
-  // Add the new socket to the global set
-  sockets.add(socket);
+  const courseId = urlPatternResuls.pathname.groups.cId;
+
+  rooms.set(socket, courseId);
+  console.log("rooms", rooms)
 
   socket.onclose = () => {
-    // Remove the socket from the set when it's closed
     console.log("socket closed", socket)
-    sockets.delete(socket);
+    rooms.delete(socket);
+  };
+
+  return response;
+}
+
+const connectToQuestionRoom = async (request, urlPatternResuls) => {
+  const { socket, response } = Deno.upgradeWebSocket(request);
+
+  const questionId = urlPatternResuls.pathname.groups.qId;
+
+  rooms.set(socket, questionId);
+  console.log("rooms", rooms)
+
+  socket.onclose = () => {
+    console.log("socket closed", socket)
+    rooms.delete(socket);
   };
 
   return response;
@@ -238,8 +270,13 @@ const urlMapping = [
   },
   {
     method: "GET",
-    pattern: new URLPattern({ pathname: "/ws" }),
-    fn: connectToWebsocket,
+    pattern: new URLPattern({ pathname: "/ws/:cId" }),
+    fn: connectToCourseRoom,
+  },
+  {
+    method: "GET",
+    pattern: new URLPattern({ pathname: "/ws/:qId" }),
+    fn: connectToQuestionRoom,
   },
 ]
 

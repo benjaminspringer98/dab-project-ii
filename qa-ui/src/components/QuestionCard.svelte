@@ -17,7 +17,7 @@
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(data),
-            }
+            },
         );
         return await response.json();
     };
@@ -35,7 +35,7 @@
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(data),
-            }
+            },
         );
 
         upvoteDataPromise = fetchUpvoteData();

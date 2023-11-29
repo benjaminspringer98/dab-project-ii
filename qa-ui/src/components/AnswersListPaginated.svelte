@@ -1,8 +1,10 @@
 <script>
-    export let course;
+    export let courseId;
+    export let question;
+
     import { userUuid } from "../stores/stores.js";
     import { onMount } from "svelte";
-    import QuestionCard from "./QuestionCard.svelte";
+    import AnswerCard from "./AnswerCard.svelte";
 
     let page = 1;
     let data = [];
@@ -10,7 +12,7 @@
     let hasMoreData = true;
     const offset = 200; // Pixels from the bottom of the page to trigger data fetch
 
-    let questionText = "";
+    let answerText = "";
     let errorMessage = "";
 
     let ws;
@@ -19,7 +21,7 @@
         if (!hasMoreData) return; // Prevent fetching if no more data is available
 
         const response = await fetch(
-            `/api/courses/${course.id}/questions?page=${page}`,
+            `/api/courses/${courseId}/questions/${question.id}/answers?page=${page}`,
         );
 
         newBatch = await response.json();
@@ -46,12 +48,12 @@
         });
 
         const host = window.location.hostname;
-        ws = new WebSocket("ws://" + host + `:7800/api/ws/${course.id}`);
+        ws = new WebSocket("ws://" + host + `:7800/api/ws/${question.id}`);
 
         ws.onmessage = (event) => {
             console.log(event.data);
-            const question = JSON.parse(event.data);
-            data = [question, ...data];
+            const answer = JSON.parse(event.data);
+            data = [answer, ...data];
             console.log(data);
         };
 
@@ -65,37 +67,40 @@
     const submit = async () => {
         const data = {
             userUuid: $userUuid,
-            text: questionText,
+            text: answerText,
         };
 
         try {
-            const response = await sendQuestion(data);
+            const response = await sendAnswer(data);
             handleResponse(response);
         } catch (error) {
             errorMessage = error.message;
         }
     };
 
-    const sendQuestion = async (data) => {
-        return await fetch(`/api/courses/${course.id}/questions`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
+    const sendAnswer = async (data) => {
+        return await fetch(
+            `/api/courses/${courseId}/questions/${question.id}/answers`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
             },
-            body: JSON.stringify(data),
-        });
+        );
     };
 
     const handleResponse = (response) => {
         if (!response.ok) {
             throw new Error(
                 response.status === 429
-                    ? "You can only create one question per minute."
+                    ? "You can only create one answer per minute."
                     : "An error occurred, please try again.",
             );
         }
 
-        questionText = "";
+        answerText = "";
         fetchData();
     };
 </script>
@@ -106,21 +111,21 @@
     {/each}
 </ul> -->
 
-<h2 class="text-center text-2xl">{course.name}</h2>
+<p id="questionText" class="text-lg">{question.text}</p>
 <textarea
-    id="questionText"
-    bind:value={questionText}
+    id="answerText"
+    bind:value={answerText}
     rows="5"
     cols="50"
     class="form-textarea m-5 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 p-2 text-md leading-6"
-    placeholder="Your question"
+    placeholder="Your answer"
 />
 <button
     id="submitBtn"
     class="bg-blue-500 hover:bg-blue-700 text-white font-bold p-3 rounded m-4"
     on:click={submit}
 >
-    Create question
+    Add answer
 </button>
 
 {#if errorMessage}
@@ -128,7 +133,7 @@
 {/if}
 
 <ul>
-    {#each data as question}
-        <QuestionCard {question} courseId={course.id} client:load />
+    {#each data as answer}
+        <AnswerCard {answer} {courseId} questionId={question.id} client:load />
     {/each}
 </ul>
