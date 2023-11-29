@@ -9,8 +9,8 @@ const redis = await connect({ hostname: "redis-queue", port: 6379 });
 const cachedCourseService = cacheMethodCalls(courseService, "courseService", [""]);
 const cachedQuestionService = cacheMethodCalls(questionService, "questionService", [""]);
 
-// websocket rooms for courses and questions, consisting of a socket and a courseId/questionId
-const rooms = new Map();
+const courseRooms = new Map(); // Map for course WebSockets
+const questionRooms = new Map(); // Map for question WebSockets
 
 const getCourses = async (request) => {
   const courses = await cachedCourseService.findAll();
@@ -59,8 +59,11 @@ const addQuestion = async (request, urlPatternResuls) => {
 
   const question = await cachedQuestionService.findById(questionId);
   // send question to all sockets in room with corresponding courseId
-  const socketsInRoom = [...rooms.entries()].filter(([socket, room]) => room === courseId).map(([socket, room]) => socket);
-  socketsInRoom.forEach((socket) => socket.send(JSON.stringify(question)));
+  if (courseRooms.has(courseId)) {
+    courseRooms.get(courseId).forEach(socket => {
+      socket.send(JSON.stringify(question));
+    });
+  }
 
   // push into queue for async generation of llm answers
   await redis.lpush("questions_queue", JSON.stringify(data));
@@ -152,8 +155,12 @@ const addAnswer = async (request, urlPatternResuls) => {
   const answer = await answerService.findById(answerId);
 
   // send answer to all sockets in room with corresponding questionId
-  const socketsInRoom = [...rooms.entries()].filter(([socket, room]) => room === questionId).map(([socket, room]) => socket);
-  socketsInRoom.forEach((socket) => socket.send(JSON.stringify(answer)));
+  if (questionRooms.has(questionId)) {
+    console.log("bin drin")
+    questionRooms.get(questionId).forEach(socket => {
+      socket.send(JSON.stringify(answer));
+    });
+  }
 
   return new Response({ status: 200 })
 }
@@ -187,14 +194,19 @@ const connectToCourseRoom = async (request, urlPatternResuls) => {
 
   const courseId = urlPatternResuls.pathname.groups.cId;
 
-  rooms.set(socket, courseId);
-  console.log("rooms", rooms)
+  if (!courseRooms.has(courseId)) {
+    courseRooms.set(courseId, new Set());
+  }
+  courseRooms.get(courseId).add(socket);
 
   socket.onclose = () => {
-    console.log("socket closed", socket)
-    rooms.delete(socket);
+    courseRooms.get(courseId).delete(socket);
+    if (courseRooms.get(courseId).size === 0) {
+      courseRooms.delete(courseId);
+    }
   };
 
+  console.log("courseRooms", courseRooms)
   return response;
 }
 
@@ -203,13 +215,19 @@ const connectToQuestionRoom = async (request, urlPatternResuls) => {
 
   const questionId = urlPatternResuls.pathname.groups.qId;
 
-  rooms.set(socket, questionId);
-  console.log("rooms", rooms)
+  if (!questionRooms.has(questionId)) {
+    questionRooms.set(questionId, new Set());
+  }
+  questionRooms.get(questionId).add(socket);
 
   socket.onclose = () => {
-    console.log("socket closed", socket)
-    rooms.delete(socket);
+    questionRooms.get(questionId).delete(socket);
+    if (questionRooms.get(questionId).size === 0) {
+      questionRooms.delete(questionId);
+    }
   };
+
+  console.log("questionRooms", questionRooms)
 
   return response;
 }
@@ -272,12 +290,12 @@ const urlMapping = [
   },
   {
     method: "GET",
-    pattern: new URLPattern({ pathname: "/ws/:cId" }),
+    pattern: new URLPattern({ pathname: "/ws/courses/:cId" }),
     fn: connectToCourseRoom,
   },
   {
     method: "GET",
-    pattern: new URLPattern({ pathname: "/ws/:qId" }),
+    pattern: new URLPattern({ pathname: "/ws/questions/:qId" }),
     fn: connectToQuestionRoom,
   },
 ]
