@@ -33,4 +33,4 @@ the query to get the 20 most recent questions/answers by around 50%
 - further, postgres has some internal caching mechanism implemented, which diminishes the returns of self-built caching solutions anyways
 - therefore, caching of db results is not implemented for most the question and answer services
 - However, the findById query for questions and all queries for courses can easily be cached 
-- as there is no functionality to create/delete courses, or delete questions through the API, these caches wouldn't even need to be purged
+- as there is no functionality to create/delete courses, or delete questions through the API, these caches wouldn't even need to be purged (in a real application, this wouldn't be the case though, as there would most likely be a functionality to e.g. delete questions)
