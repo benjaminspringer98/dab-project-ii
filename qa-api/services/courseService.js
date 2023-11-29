@@ -1,6 +1,6 @@
 import { sql } from "../database/database.js";
 
-const findALl = async (request) => {
+const findAll = async (request) => {
     return await sql`SELECT * FROM courses`;
 }
 
@@ -14,4 +14,4 @@ const findById = async (id) => {
     return false;
 }
 
-export { findALl, findById }
+export { findAll, findById }

@@ -2,22 +2,25 @@ import { serve, connect } from "./deps.js";
 import * as courseService from "./services/courseService.js";
 import * as questionService from "./services/questionService.js";
 import * as answerService from "./services/answerService.js";
+import { cacheMethodCalls } from "./utils/cacheUtils.js";
 
 const redis = await connect({ hostname: "redis-queue", port: 6379 });
 
-// const sockets = new Set();
-// separate websocket rooms for courses and questions
+const cachedCourseService = cacheMethodCalls(courseService, [""]);
+const cachedQuestionService = cacheMethodCalls(questionService, [""]);
+
+// websocket rooms for courses and questions, consisting of a socket and a courseId/questionId
 const rooms = new Map();
 
 const getCourses = async (request) => {
-  const courses = await courseService.findALl();
+  const courses = await cachedCourseService.findAll();
   return new Response(JSON.stringify(courses));
 }
 
 const getCourse = async (request, urlPatternResult) => {
   const courseId = urlPatternResult.pathname.groups.cId;
 
-  const course = await courseService.findById(courseId);
+  const course = await cachedCourseService.findById(courseId);
 
   if (!course) {
     return new Response(JSON.stringify({ status: 404 }))
@@ -30,11 +33,11 @@ const addQuestion = async (request, urlPatternResuls) => {
   const requestData = await request.json();
   const courseId = urlPatternResuls.pathname.groups.cId;
 
-  // one question per minute per user
+  // allow one question per minute per user
   const hasUserCreatedInLastMinute = await questionService.hasUserCreatedInLastMinute(requestData.userUuid)
-  // if (hasUserCreatedInLastMinute) {
-  //   return new Response("Too many requests", { status: 429 })
-  // }
+  if (hasUserCreatedInLastMinute) {
+    return new Response("Too many requests", { status: 429 })
+  }
 
   let questionId;
   try {
@@ -54,7 +57,7 @@ const addQuestion = async (request, urlPatternResuls) => {
     questionId: questionId,
   };
 
-  const question = await questionService.findById(questionId);
+  const question = await cachedQuestionService.findById(questionId);
   // send question to all sockets in room with corresponding courseId
   const socketsInRoom = [...rooms.entries()].filter(([socket, room]) => room === courseId).map(([socket, room]) => socket);
   socketsInRoom.forEach((socket) => socket.send(JSON.stringify(question)));
@@ -79,7 +82,7 @@ const getQuestions = async (request, urlPatternResuls) => {
 const getQuestion = async (request, urlPatternResult) => {
   const questionId = urlPatternResult.pathname.groups.qId;
 
-  const question = await questionService.findById(questionId);
+  const question = await cachedQuestionService.findById(questionId);
 
   if (!question) {
     return new Response(JSON.stringify({ status: 404 }))
@@ -121,7 +124,6 @@ const getAnswers = async (request, urlPatternResuls) => {
 
   const answers = await answerService.findAllByQuestionIdPaginated(questionId, pageNumber);
 
-  // const answers = await answerService.findAllByQuestionId(questionId);
   return new Response(JSON.stringify(answers));
 }
 
@@ -129,11 +131,11 @@ const addAnswer = async (request, urlPatternResuls) => {
   const requestData = await request.json();
   const questionId = urlPatternResuls.pathname.groups.qId;
 
-  // one answer per minute per user
+  // allow one answer per minute per user
   const hasUserCreatedInLastMinute = await answerService.hasUserCreatedInLastMinute(requestData.userUuid)
-  // if (hasUserCreatedInLastMinute) {
-  //   return new Response("Too many requests", { status: 429 })
-  // }
+  if (hasUserCreatedInLastMinute) {
+    return new Response("Too many requests", { status: 429 })
+  }
 
   let answerId;
   try {
