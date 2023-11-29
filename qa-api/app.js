@@ -6,8 +6,8 @@ import { cacheMethodCalls } from "./utils/cacheUtils.js";
 
 const redis = await connect({ hostname: "redis-queue", port: 6379 });
 
-const cachedCourseService = cacheMethodCalls(courseService, [""]);
-const cachedQuestionService = cacheMethodCalls(questionService, [""]);
+const cachedCourseService = cacheMethodCalls(courseService, "courseService", [""]);
+const cachedQuestionService = cacheMethodCalls(questionService, "questionService", [""]);
 
 // websocket rooms for courses and questions, consisting of a socket and a courseId/questionId
 const rooms = new Map();

@@ -5,7 +5,7 @@ const redis = await connect({
     port: 6379,
 });
 
-const cacheMethodCalls = (object, methodsToFlushCacheWith = []) => {
+const cacheMethodCalls = (object, serviceName, methodsToFlushCacheWith = []) => {
     const handler = {
         get: (module, methodName) => {
             const method = module[methodName];
@@ -15,7 +15,7 @@ const cacheMethodCalls = (object, methodsToFlushCacheWith = []) => {
                     return await method.apply(this, methodArgs);
                 }
 
-                const cacheKey = `${methodName}-${JSON.stringify(methodArgs)}`;
+                const cacheKey = `${serviceName}-${methodName}-${JSON.stringify(methodArgs)}`;
                 console.log(`cacheKey: ${cacheKey}`)
                 const cacheResult = await redis.get(cacheKey);
                 console.log(`cacheResult: ${cacheResult}`)

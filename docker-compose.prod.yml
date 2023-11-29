@@ -102,6 +102,14 @@ services:
     expose:
       - 6379
 
+  redis-cache:
+    image: redis:latest
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./redis-cache/redis.conf:/usr/local/etc/redis/redis.conf   
+    expose:
+      - 6379
+
   qa-bot:
     build: qa-bot
     image: qa-bot
