@@ -24,6 +24,12 @@ TODO: There is a brief description of the application in REFLECTION.md that high
 - qa-api writes into the queue, qa-bot reads from the queue, calls llm-api, and posts llm response back to qa-api
 - this creates a decoupling, where the main qa-api does not care when e.g. the qa-bot crashes
 
+## Pagination / Infinite scrolling
+
+- pagination was used to implement infinite scrolling
+- frontend keeps track of the page number that should be fetched
+- when the user has almost scrolled to the end of the page, the page number is incremented and is passed to backend to get the correct batch of data
+
 ## Real time updates
 
 - when new questions/answers are created, they are shown to the user in real time
@@ -47,6 +53,8 @@ Prod:
 
 - Kubernetes config files are in place, allowing the application to be ran locally using e.g. Minikube
 - to be able to run the same project with both docker compose and minikube, the same service names were used in both configs
+- autoscaling is in place just for API and UI, as suggested by the TAs
+- database is set up using a cluster
 
 ## Future outlook: Improving performance
 
