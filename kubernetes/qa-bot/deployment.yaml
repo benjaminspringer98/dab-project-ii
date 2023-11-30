@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qa-bot-deployment
+  labels:
+    app: qa-bot
+spec:
+  selector:
+    matchLabels:
+      app: qa-bot
+  template:
+    metadata:
+      labels:
+        app: qa-bot
+    spec:
+      containers:
+        - name: qa-bot
+          image: qa-bot:latest
+          imagePullPolicy: Never

@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-cache-deployment
+  labels:
+    app: redis-cache
+spec:
+  selector:
+    matchLabels:
+      app: redis-cache
+  template:
+    metadata:
+      labels:
+        app: redis-cache
+    spec:
+      containers:
+        - name: redis-cache
+          image: redis:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: 6379
+          volumeMounts:
+          - name: redis-cache-config
+            mountPath: /usr/local/etc/redis/redis.conf
+            subPath: redis.conf
+      volumes:
+      - name: redis-cache-config
+        configMap:
+          name: redis-cache-configmap

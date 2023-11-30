@@ -1,0 +1,1 @@
+cd ../qa-api && minikube image build -t qa-api -f ./Dockerfile . && cd ../qa-ui && minikube image build -t qa-ui -f ./Dockerfile . && cd ../llm-api && minikube image build -t llm-api -f ./Dockerfile . && cd ../qa-bot && minikube image build -t qa-bot -f ./Dockerfile . && cd ../flyway && minikube image build -t database-migrations -f ./Dockerfile .

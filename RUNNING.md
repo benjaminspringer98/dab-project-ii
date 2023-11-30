@@ -34,6 +34,19 @@ TODO: For merits, the RUNNING.md also outlines the steps needed to use Kubernete
 
 ## Kubernetes
 
+### Prequisites
+
+- have Minikube + kubectl installed
+
+### Setup
+
+1. run `minikube start`
+2. to build images, run `sh build-images.sh` (or run the commands of the file in your terminal)
+3. install CloudNativePG operator: `kubectl apply -f https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/release-1.19/releases/cnpg-1.19.1.yaml`
+4. to apply configs, run in root directory of project: `kubectl apply -f kubernetes -R`
+5. port forward the nginx service: `kubectl port-forward service/nginx-service 7800:7800`
+6. access application at http://localhost:7800/
+
 ## Tests
 
 ### End-to-End Tests

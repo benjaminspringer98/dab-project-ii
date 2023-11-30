@@ -43,6 +43,11 @@ Prod:
 - data in the db is persisted (locally)
 - UI is built with astro build and uses SSR adapter rather than using astro dev
 
+## Kubernetes
+
+- Kubernetes config files are in place, allowing the application to be ran locally using e.g. Minikube
+- to be able to run the same project with both docker compose and minikube, the same service names were used in both configs
+
 ## Future outlook: Improving performance
 
 - one could most likely improve the indexing or database denormalization, as I did not feel fully competent enough to do this through the lecture materials, and doing a bit of research on my own
