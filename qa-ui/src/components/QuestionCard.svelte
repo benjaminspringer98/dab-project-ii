@@ -4,6 +4,10 @@
 
     import { userUuid } from "../stores/stores.js";
 
+    const formatUserUuid = (uuid) => {
+        return uuid.split("-")[0];
+    };
+
     const fetchUpvoteData = async () => {
         const data = {
             userUuid: $userUuid,
@@ -46,7 +50,7 @@
 
 <div class="border-2 border-gray-200 rounded-md p-4 m-4">
     <p>{question.text}</p>
-    <p>{question.user_uuid}</p>
+    <p>{formatUserUuid(question.user_uuid)}</p>
     <a href={`/courses/${courseId}/questions/${question.id}`}>Go</a>
 
     {#await upvoteDataPromise}
@@ -55,14 +59,14 @@
         {#if upvoteData.hasUserUpvoted}
             <!-- TODO: make the following cleaner and remove redundancy-->
             <button
-                class="bg-blue-300 hover:bg-blue-400 py-2 px-4 rounded-full"
+                class="bg-yellow-300 hover:bg-yellow-400 py-2 px-4 rounded-full"
                 on:click={toggleUpvote}
                 ><i class="fa-solid fa-thumbs-up fa-xl" />
                 <span>{upvoteData.count}</span></button
             >
         {:else}
             <button
-                class="bg-blue-200 hover:bg-blue-400 py-2 px-4 rounded-full"
+                class="bg-yellow-300 hover:bg-yellow-400 py-2 px-4 rounded-full"
                 on:click={toggleUpvote(question.id)}
                 ><i class="fa-regular fa-thumbs-up fa-xl" /><span
                     >{upvoteData.count}</span

@@ -5,6 +5,10 @@
 
     import { userUuid } from "../stores/stores.js";
 
+    const formatUserUuid = (uuid) => {
+        return uuid.split("-")[0];
+    };
+
     const fetchUpvoteData = async () => {
         const data = {
             userUuid: $userUuid,
@@ -18,7 +22,7 @@
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(data),
-            }
+            },
         );
         return await response.json();
     };
@@ -36,7 +40,7 @@
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(data),
-            }
+            },
         );
 
         upvoteDataPromise = fetchUpvoteData();
@@ -47,7 +51,7 @@
 
 <div class="border-2 border-gray-200 rounded-md p-4 m-4">
     <p>{answer.text}</p>
-    <p>{answer.user_uuid}</p>
+    <p>{formatUserUuid(answer.user_uuid)}</p>
 
     {#await upvoteDataPromise}
         <p>Loading...</p>

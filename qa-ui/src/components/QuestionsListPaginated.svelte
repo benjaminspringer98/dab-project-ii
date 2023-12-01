@@ -113,7 +113,7 @@
 />
 <button
     id="submitBtn"
-    class="bg-blue-500 hover:bg-blue-700 text-white font-bold p-3 rounded m-4"
+    class="bg-violet-500 hover:bg-violet-700 text-white font-bold p-3 rounded m-4"
     on:click={submit}
 >
     Create question
