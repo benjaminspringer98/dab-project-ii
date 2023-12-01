@@ -59,3 +59,6 @@ Prod:
 ## Future outlook: Improving performance
 
 - one could most likely improve the indexing or database denormalization, as I did not feel fully competent enough to do this through the lecture materials, and doing a bit of research on my own
+- also, each question/answer calls the backend to fetch upvote data (number of upvotes and whether current user has upvoted)
+- this creates a lot of api calls, which could be avoided if e.g. the api to get all questions/answers also included the number of upvotes and whether current user has upvoted
+- however, this would lead to one big sql statement, which could violate separation of concerns, as we would e.g. need to pass the user id into a function that is there for just fetching the questions/answers
