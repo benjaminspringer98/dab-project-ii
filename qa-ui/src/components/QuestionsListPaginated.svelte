@@ -119,6 +119,7 @@
 </script>
 
 <input
+    id="questionTitle"
     bind:value={questionTitle}
     placeholder="Title"
     class="m-5 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 p-2 text-md leading-6 focus:outline-none focus:ring-2 focus:ring-violet-700"

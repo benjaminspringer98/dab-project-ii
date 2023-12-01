@@ -8,6 +8,7 @@ export const options = {
 
 export default function () {
     const data = {
+        title: randomString(10),
         text: randomString(30),
         userUuid: randomString(36)
     };

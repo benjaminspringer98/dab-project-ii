@@ -13,12 +13,15 @@ test("User can create question and open question page", async ({ page }) => {
   await page.goto("/courses/1");
   await page.waitForTimeout(1000);
 
-  const question = randomString(30);
-  await page.locator("#questionText").fill(question);
-  await page.locator("#submitBtn").click();
-  await page.locator(`p:has-text("${question}") ~ a`).click();
+  const questionTitle = randomString(10);
+  await page.locator("#questionTitle").fill(questionTitle);
+  const questionText = randomString(30);
+  await page.locator("#questionText").fill(questionText);
 
-  await expect(page.locator("#questionText")).toHaveText(question);
+  await page.locator("#submitBtn").click();
+  await page.locator(`a:has-text("${questionTitle}")`).click();
+
+  await expect(page.locator("#questionText")).toHaveText(questionText);
 });
 
 test("User can create answer to question", async ({ page }) => {
