@@ -114,7 +114,7 @@
     };
 </script>
 
-<h2 class="text-center text-3xl">{course.name}</h2>
+
 
 <input
     bind:value={questionTitle}

@@ -3,10 +3,7 @@
     export let courseId;
 
     import { userUuid } from "../stores/stores.js";
-
-    const formatUserUuid = (uuid) => {
-        return uuid.split("-")[0];
-    };
+    import { formatUserUuid, formatDate } from "../utils/formatters.js";
 
     const fetchUpvoteData = async () => {
         const data = {
@@ -54,7 +51,12 @@
         href={`/courses/${courseId}/questions/${question.id}`}
         >{question.title}</a
     >
-    <p>{formatUserUuid(question.user_uuid)}</p>
+    <hr class="my-2" />
+    <p class="text-gray-500">
+        Asked by {formatUserUuid(question.user_uuid)} on {formatDate(
+            question.created_at,
+        )}
+    </p>
 
     {#await upvoteDataPromise}
         <div

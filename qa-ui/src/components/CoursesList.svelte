@@ -2,8 +2,6 @@
     export let courses;
 </script>
 
-<h2 class="text-center text-2xl font-bold">Courses</h2>
-
 <ul
     class="m-5 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg"
 >

@@ -160,7 +160,6 @@ const addAnswer = async (request, urlPatternResuls) => {
 
   // send answer to all sockets in room with corresponding questionId
   if (questionRooms.has(questionId)) {
-    console.log("bin drin")
     questionRooms.get(questionId).forEach(socket => {
       socket.send(JSON.stringify(answer));
     });
@@ -210,7 +209,6 @@ const connectToCourseRoom = async (request, urlPatternResuls) => {
     }
   };
 
-  console.log("courseRooms", courseRooms)
   return response;
 }
 
@@ -230,8 +228,6 @@ const connectToQuestionRoom = async (request, urlPatternResuls) => {
       questionRooms.delete(questionId);
     }
   };
-
-  console.log("questionRooms", questionRooms)
 
   return response;
 }

@@ -6,7 +6,6 @@ import Header from "./Header.svelte";
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="stylesheet" href="../styles/global.css" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <script
@@ -21,3 +20,11 @@ import Header from "./Header.svelte";
     </div>
   </body>
 </html>
+
+<style is:global>
+  /* override default selection style */
+  ::selection {
+    @apply bg-violet-400;
+    color: white;
+  }
+</style>

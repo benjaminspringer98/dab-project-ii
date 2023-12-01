@@ -107,24 +107,18 @@
     };
 </script>
 
-<!-- <ul>
-    {#each events as event}
-        <li>{event}</li>
-    {/each}
-</ul> -->
-
-<p id="questionText" class="text-lg">{question.text}</p>
+<p id="questionText" class="text-xl">{question.text}</p>
 <textarea
     id="answerText"
     bind:value={answerText}
     rows="5"
     cols="50"
-    class="form-textarea m-5 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 p-2 text-md leading-6"
+    class="form-textarea m-5 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 p-2 text-md leading-6 focus:outline-none focus:ring-2 focus:ring-violet-700"
     placeholder="Your answer"
 />
 <button
     id="submitBtn"
-    class="bg-blue-500 hover:bg-blue-700 text-white font-bold p-3 rounded m-4"
+    class="bg-violet-500 hover:bg-violet-700 text-white font-bold p-3 rounded m-4"
     on:click={submit}
 >
     Add answer

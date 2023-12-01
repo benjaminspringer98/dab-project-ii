@@ -9,5 +9,6 @@ const course = await response.json();
 ---
 
 <Layout>
+    <h2 class="text-center text-3xl font-bold">{course.name}</h2>
     <QuestionsListPaginated {course} client:load />
 </Layout>
