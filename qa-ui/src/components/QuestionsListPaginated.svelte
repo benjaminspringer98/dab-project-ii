@@ -1,5 +1,6 @@
 <script>
     export let course;
+
     import { userUuid } from "../stores/stores.js";
     import { onMount } from "svelte";
     import QuestionCard from "./QuestionCard.svelte";
@@ -35,13 +36,18 @@
     onMount(() => {
         fetchData();
 
+        let lastFetchTime = 0;
+        const fetchInterval = 1000;
+
         window.addEventListener("scroll", () => {
+            const currentTime = new Date().getTime();
             if (
-                document.body.scrollHeight > window.innerHeight && // Check if the content is taller than the viewport
+                currentTime - lastFetchTime > fetchInterval && // Prevent fetching too often
                 window.innerHeight + window.scrollY >=
                     document.body.scrollHeight - offset &&
                 hasMoreData
             ) {
+                lastFetchTime = currentTime;
                 page++;
                 fetchData();
             }
@@ -54,9 +60,7 @@
 
         ws.onmessage = (event) => {
             const question = JSON.parse(event.data);
-            console.log(question);
             data = [question, ...data];
-            console.log(data);
         };
 
         return () => {
@@ -113,8 +117,6 @@
         errorMessage = "";
     };
 </script>
-
-
 
 <input
     bind:value={questionTitle}

@@ -138,6 +138,10 @@ const addAnswer = async (request, urlPatternResuls) => {
   const requestData = await request.json();
   const questionId = urlPatternResuls.pathname.groups.qId;
 
+  if (!requestData.text) {
+    return new Response("Missing text", { status: 400 })
+  }
+
   // allow one answer per minute per user
   const hasUserCreatedInLastMinute = await answerService.hasUserCreatedInLastMinute(requestData.userUuid)
   if (hasUserCreatedInLastMinute) {

@@ -12,15 +12,6 @@ CREATE TABLE questions (
     created_at TIMESTAMP
 );
 
--- remove later:
--- INSERT INTO questions (course_id, text, user_uuid, created_at)
--- SELECT
---     (SELECT id FROM courses ORDER BY random() LIMIT 1),
---     'Question ' || generate_series,
---     md5(random()::text),
---     NOW() - (random() * interval '365 days')
--- FROM generate_series(1, 1000000);
-
 CREATE TABLE answers (
     id SERIAL PRIMARY KEY,
     question_id INTEGER REFERENCES questions(id),
@@ -39,17 +30,6 @@ CREATE TABLE upvotes (
     type RESOURCE_TYPE NOT NULL,
     created_at TIMESTAMP
 );
-
--- remove later:
--- CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
--- INSERT INTO upvotes (question_id, user_uuid, type, created_at)
--- SELECT
---     1,
---     uuid_generate_v4()::text,
---     'question',
---     NOW() - (random() * interval '365 days')
--- FROM generate_series(1, 1000000);
 
 CREATE INDEX idx_upvotes_qid_user_uuid ON upvotes (question_id, user_uuid);
 CREATE INDEX idx_questions_cid_id_created_at ON questions (course_id, id, created_at);

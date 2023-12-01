@@ -30,6 +30,7 @@ TODO: There is a brief description of the application in REFLECTION.md that high
 - pagination was used to implement infinite scrolling
 - frontend keeps track of the page number that should be fetched
 - when the user has almost scrolled to the end of the page, the page number is incremented and is passed to backend to get the correct batch of data
+- there are some sample questions in the Designing and Building Scalable Web Applications course, where this can be tested
 
 ## Real time updates
 
@@ -63,3 +64,5 @@ Prod:
 - also, each question/answer calls the backend to fetch upvote data (number of upvotes and whether current user has upvoted)
 - this creates a lot of api calls, which could be avoided if e.g. the api to get all questions/answers also included the number of upvotes and whether current user has upvoted
 - however, this would lead to one big sql statement, which could violate separation of concerns, as we would e.g. need to pass the user id into a function that is there for just fetching the questions/answers
+- not necessarily relevant for performance, but there is a lot of duplicate logic between questions, and answers, as they are almost the same, the only difference being that a question has a title column
+- some refactoring could be useful here, to (in a real world scenario) increase organizational scalability, when new team members are coming into the team, who are then able to understand the code faster

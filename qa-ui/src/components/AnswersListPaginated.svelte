@@ -36,13 +36,18 @@
     onMount(() => {
         fetchData();
 
+        let lastFetchTime = 0;
+        const fetchInterval = 1000;
+
         window.addEventListener("scroll", () => {
+            const currentTime = new Date().getTime();
             if (
-                document.body.scrollHeight > window.innerHeight && // Check if the content is taller than the viewport
+                currentTime - lastFetchTime > fetchInterval && // Prevent fetching too often
                 window.innerHeight + window.scrollY >=
                     document.body.scrollHeight - offset &&
                 hasMoreData
             ) {
+                lastFetchTime = currentTime;
                 page++;
                 fetchData();
             }
@@ -54,10 +59,8 @@
         );
 
         ws.onmessage = (event) => {
-            console.log(event.data);
             const answer = JSON.parse(event.data);
             data = [answer, ...data];
-            console.log(data);
         };
 
         return () => {
@@ -96,14 +99,23 @@
 
     const handleResponse = (response) => {
         if (!response.ok) {
-            throw new Error(
-                response.status === 429
-                    ? "You can only create one answer per minute."
-                    : "An error occurred, please try again.",
-            );
+            let message;
+            switch (response.status) {
+                case 400:
+                    message = "Please fill in all fields.";
+                    break;
+                case 429:
+                    message = "You can only create one question per minute.";
+                    break;
+                default:
+                    message = "An error occurred, please try again.";
+            }
+
+            throw new Error(message);
         }
 
         answerText = "";
+        errorMessage = "";
     };
 </script>
 
@@ -125,7 +137,9 @@
 </button>
 
 {#if errorMessage}
-    <p class="error-message">{errorMessage}</p>
+    <p class="p-4 m-4 text-sm text-red-800 rounded-lg bg-red-50">
+        {errorMessage}
+    </p>
 {/if}
 
 <ul>
