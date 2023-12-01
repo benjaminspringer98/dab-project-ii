@@ -41,7 +41,7 @@ TODO: For merits, the RUNNING.md also outlines the steps needed to use Kubernete
 ### Setup
 
 1. run `minikube start`
-2. to build images, run `sh build-images.sh` (or run the commands of the file in your terminal)
+2. to build images, run `sh build-images.sh` (or run the commands of the file in your terminal) in the kubernetes folder 
 3. install CloudNativePG operator: `kubectl apply -f https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/release-1.19/releases/cnpg-1.19.1.yaml`
 4. enable metrics server for autoscaling: `minikube addons enable metrics-server` 
 5. to apply configs, run in root directory of project: `kubectl apply -f kubernetes -R`
