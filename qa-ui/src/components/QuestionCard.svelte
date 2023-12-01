@@ -57,20 +57,26 @@
     <p>{formatUserUuid(question.user_uuid)}</p>
 
     {#await upvoteDataPromise}
-        <p>Loading...</p>
+        <div
+            class="flex justify-center items-center bg-yellow-200 hover:bg-yellow-300 w-14 h-14 rounded-full"
+        >
+            <div
+                class="w-6 h-6 rounded-full border-t-2 border-black animate-spin"
+            ></div>
+        </div>
     {:then upvoteData}
         {#if upvoteData.hasUserUpvoted}
             <button
-                class="bg-yellow-200 hover:bg-yellow-300 py-2 px-4 rounded-full"
+                class="bg-yellow-200 hover:bg-yellow-300 w-14 h-14 rounded-full"
                 on:click={toggleUpvote}
                 ><i class="fa-solid fa-thumbs-up fa-xl" />
                 <span>{upvoteData.count}</span></button
             >
         {:else}
             <button
-                class="bg-yellow-200 hover:bg-yellow-300 py-2 px-4 rounded-full"
+                class="bg-yellow-200 hover:bg-yellow-300 w-14 h-14 rounded-full"
                 on:click={toggleUpvote(question.id)}
-                ><i class="fa-regular fa-thumbs-up fa-xl border-black" /><span
+                ><i class="fa-regular fa-thumbs-up fa-xl" /><span
                     >{upvoteData.count}</span
                 ></button
             >
@@ -79,3 +85,14 @@
         <p>{error.message}</p>
     {/await}
 </div>
+
+<style>
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
