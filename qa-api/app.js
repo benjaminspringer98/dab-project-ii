@@ -33,6 +33,10 @@ const addQuestion = async (request, urlPatternResuls) => {
   const requestData = await request.json();
   const courseId = urlPatternResuls.pathname.groups.cId;
 
+  if (!requestData.title || !requestData.text) {
+    return new Response("Missing title or text", { status: 400 })
+  }
+
   // allow one question per minute per user
   const hasUserCreatedInLastMinute = await questionService.hasUserCreatedInLastMinute(requestData.userUuid)
   if (hasUserCreatedInLastMinute) {
@@ -41,7 +45,7 @@ const addQuestion = async (request, urlPatternResuls) => {
 
   let questionId;
   try {
-    questionId = await questionService.add(courseId, requestData.text, requestData.userUuid);
+    questionId = await questionService.add(courseId, requestData.title, requestData.text, requestData.userUuid);
   } catch (e) {
     console.log(e);
     return new Response({ status: 500 })

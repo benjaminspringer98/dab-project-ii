@@ -49,26 +49,28 @@
 </script>
 
 <div class="border-2 border-gray-200 rounded-md p-4 m-4">
-    <p>{question.text}</p>
+    <a
+        class="text-2xl hover:text-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-700"
+        href={`/courses/${courseId}/questions/${question.id}`}
+        >{question.title}</a
+    >
     <p>{formatUserUuid(question.user_uuid)}</p>
-    <a href={`/courses/${courseId}/questions/${question.id}`}>Go</a>
 
     {#await upvoteDataPromise}
         <p>Loading...</p>
     {:then upvoteData}
         {#if upvoteData.hasUserUpvoted}
-            <!-- TODO: make the following cleaner and remove redundancy-->
             <button
-                class="bg-yellow-300 hover:bg-yellow-400 py-2 px-4 rounded-full"
+                class="bg-yellow-200 hover:bg-yellow-300 py-2 px-4 rounded-full"
                 on:click={toggleUpvote}
                 ><i class="fa-solid fa-thumbs-up fa-xl" />
                 <span>{upvoteData.count}</span></button
             >
         {:else}
             <button
-                class="bg-yellow-300 hover:bg-yellow-400 py-2 px-4 rounded-full"
+                class="bg-yellow-200 hover:bg-yellow-300 py-2 px-4 rounded-full"
                 on:click={toggleUpvote(question.id)}
-                ><i class="fa-regular fa-thumbs-up fa-xl" /><span
+                ><i class="fa-regular fa-thumbs-up fa-xl border-black" /><span
                     >{upvoteData.count}</span
                 ></button
             >

@@ -6,6 +6,7 @@ CREATE TABLE courses (
 CREATE TABLE questions (
     id SERIAL PRIMARY KEY,
     course_id INTEGER REFERENCES courses(id),
+    title TEXT NOT NULL,
     text TEXT NOT NULL,
     user_uuid TEXT NOT NULL,
     created_at TIMESTAMP

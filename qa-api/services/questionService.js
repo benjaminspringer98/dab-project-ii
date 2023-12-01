@@ -1,8 +1,8 @@
 import { sql } from "../database/database.js";
 
-const add = async (courseId, text, userUuid) => {
-    const created = await sql`INSERT INTO questions (course_id, text, user_uuid, created_at) 
-                VALUES (${courseId}, ${text}, ${userUuid}, NOW())
+const add = async (courseId, title, text, userUuid) => {
+    const created = await sql`INSERT INTO questions (course_id, title, text, user_uuid, created_at) 
+                VALUES (${courseId}, ${title}, ${text}, ${userUuid}, NOW())
                 RETURNING id`;
 
     return created[0].id;

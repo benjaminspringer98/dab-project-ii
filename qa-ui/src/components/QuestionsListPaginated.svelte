@@ -10,6 +10,7 @@
     let hasMoreData = true;
     const offset = 200; // Pixels from the bottom of the page to trigger data fetch
 
+    let questionTitle = "";
     let questionText = "";
     let errorMessage = "";
 
@@ -68,6 +69,7 @@
     const submit = async () => {
         const data = {
             userUuid: $userUuid,
+            title: questionTitle,
             text: questionText,
         };
 
@@ -91,24 +93,41 @@
 
     const handleResponse = (response) => {
         if (!response.ok) {
-            throw new Error(
-                response.status === 429
-                    ? "You can only create one question per minute."
-                    : "An error occurred, please try again.",
-            );
+            let message;
+            switch (response.status) {
+                case 400:
+                    message = "Please fill in all fields.";
+                    break;
+                case 429:
+                    message = "You can only create one question per minute.";
+                    break;
+                default:
+                    message = "An error occurred, please try again.";
+            }
+
+            throw new Error(message);
         }
 
+        questionTitle = "";
         questionText = "";
+        errorMessage = "";
     };
 </script>
 
-<h2 class="text-center text-2xl">{course.name}</h2>
+<h2 class="text-center text-3xl">{course.name}</h2>
+
+<input
+    bind:value={questionTitle}
+    placeholder="Title"
+    class="m-5 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 p-2 text-md leading-6 focus:outline-none focus:ring-2 focus:ring-violet-700"
+/>
+
 <textarea
     id="questionText"
     bind:value={questionText}
     rows="5"
     cols="50"
-    class="form-textarea m-5 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 p-2 text-md leading-6"
+    class="form-textarea m-5 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 p-2 text-md leading-6 focus:outline-none focus:ring-2 focus:ring-violet-700"
     placeholder="Your question"
 />
 <button
@@ -120,7 +139,9 @@
 </button>
 
 {#if errorMessage}
-    <p class="error-message">{errorMessage}</p>
+    <p class="p-4 m-4 text-sm text-red-800 rounded-lg bg-red-50">
+        {errorMessage}
+    </p>
 {/if}
 
 <ul>
