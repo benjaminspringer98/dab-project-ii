@@ -34,8 +34,9 @@
     onMount(() => {
         fetchData();
 
-        window.addEventListener("scroll", function () {
+        window.addEventListener("scroll", () => {
             if (
+                document.body.scrollHeight > window.innerHeight && // Check if the content is taller than the viewport
                 window.innerHeight + window.scrollY >=
                     document.body.scrollHeight - offset &&
                 hasMoreData
@@ -51,8 +52,8 @@
         );
 
         ws.onmessage = (event) => {
-            console.log(event.data);
             const question = JSON.parse(event.data);
+            console.log(question);
             data = [question, ...data];
             console.log(data);
         };
@@ -98,15 +99,8 @@
         }
 
         questionText = "";
-        fetchData();
     };
 </script>
-
-<!-- <ul>
-    {#each events as event}
-        <li>{event}</li>
-    {/each}
-</ul> -->
 
 <h2 class="text-center text-2xl">{course.name}</h2>
 <textarea

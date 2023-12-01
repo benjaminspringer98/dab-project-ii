@@ -1,5 +1,6 @@
 INSERT INTO courses (name) VALUES ('Designing and Building Scalable Web Applications');
 INSERT INTO courses (name) VALUES ('SQL');
+INSERT INTO courses (name) VALUES ('Web Development');
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -34,6 +35,9 @@ INSERT INTO questions (course_id, text, user_uuid, created_at) VALUES (1, 'In a 
 INSERT INTO questions (course_id, text, user_uuid, created_at) VALUES (1, 'In a scalable web application, how do you optimize database queries for performance?', uuid_generate_v4()::text, NOW());
 
 INSERT INTO questions (course_id, text, user_uuid, created_at) VALUES (2, 'How does GROUP BY work?', uuid_generate_v4()::text, NOW());
+INSERT INTO questions (course_id, text, user_uuid, created_at) VALUES (3, 'How does async await work in JavaScript?', uuid_generate_v4()::text, NOW());
+
+
 
 INSERT INTO answers (question_id, text, user_uuid, created_at) VALUES (1, 'Vertical scaling is when you scale up the resources of a single server, such as CPU, RAM, or storage. Horizontal scaling is when you add more servers to a system, such as adding more web servers to a web application.', uuid_generate_v4()::text, NOW());
 INSERT INTO answers (question_id, text, user_uuid, created_at) VALUES (1, 'Vertical scaling is when you scale up the resources of a single server, such as CPU, RAM, or storage. Horizontal scaling is when you add more servers to a system, such as adding more web servers to a web application.', uuid_generate_v4()::text, NOW());

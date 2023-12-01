@@ -36,8 +36,9 @@
     onMount(() => {
         fetchData();
 
-        window.addEventListener("scroll", function () {
+        window.addEventListener("scroll", () => {
             if (
+                document.body.scrollHeight > window.innerHeight && // Check if the content is taller than the viewport
                 window.innerHeight + window.scrollY >=
                     document.body.scrollHeight - offset &&
                 hasMoreData
@@ -103,7 +104,6 @@
         }
 
         answerText = "";
-        fetchData();
     };
 </script>
 
