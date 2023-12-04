@@ -45,9 +45,10 @@ TODO: For merits, the RUNNING.md also outlines the steps needed to use Kubernete
 3. install CloudNativePG operator: `kubectl apply -f https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/release-1.19/releases/cnpg-1.19.1.yaml`
 4. enable metrics server for autoscaling: `minikube addons enable metrics-server` 
 5. to apply configs, run in root directory of project: `kubectl apply -f kubernetes -R`
-6. port forward the nginx service: `kubectl port-forward service/nginx-service 7800:7800`
-7. access application at http://localhost:7800/
-8. to stop, run: `minikube stop`
+6. sometimes the database migration job starts before the database is available (you can see that when the database migration job errors), in this case delete the job with `kubectl delete job database-migration-job`, and apply configs again: `kubectl apply -f kubernetes -R` (in root directory of project)
+7. port forward the nginx service: `kubectl port-forward service/nginx-service 7800:7800`
+8. access application at http://localhost:7800/
+9. to stop, run: `minikube stop`
 
 ### Subsequent runs
 1. run `minikube start`
