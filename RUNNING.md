@@ -14,23 +14,23 @@ TODO: For merits, the RUNNING.md also outlines the steps needed to use Kubernete
 
 - run `docker compose up`
 
-#### Troubleshooting (please read these!)
+### Prod
+
+- build images, run: `docker compose -f docker-compose.prod.yml up -d --build`
+- for subsequent runs: `docker compose -f docker-compose.prod.yml up -d`
+- to stop containers, run `docker compose down`
+
+### Troubleshooting (please read these!)
 
 - sometimes flyway won't start on the first run, leading to undefined values
   being shown in the frontend, or the error "Unexpected token 'P', "PostgresEr"... is not valid JSON", as the database tables to not yet exist then
-- in this case stop the containers with `ctrl + c` and re-run them
+- in this case stop the containers and re-run them
 - sometimes this can happen multiple times (at least on my pc), I have no idea
   why though
 - the llm-api also takes some time to start listening to requests (check the container logs)
 - if you create a question before the llm-api is listening to requests, the qa-bot service will crash and you have to manually restart it by saving the file (in dev, because of --watch, in prod it should restart on failure)
 - the llm response times can also be very high, but optimizing that is not part of this project
 - Also I'm on Mac M2, so I had to change some of the base images. If you run into any issues please change them back to the ones from the original project template
-
-### Prod
-
-- build images, run: `docker compose -f docker-compose.prod.yml up -d --build`
-- for subsequent runs: `docker compose -f docker-compose.prod.yml up -d`
-- to stop containers, run `docker compose down`
 
 ## Kubernetes
 
@@ -41,12 +41,21 @@ TODO: For merits, the RUNNING.md also outlines the steps needed to use Kubernete
 ### Setup
 
 1. run `minikube start`
-2. to build images, run `sh build-images.sh` (or run the commands of the file in your terminal) in the kubernetes folder 
+2. to build images, run `sh build-images.sh` (or run the commands of the file in your terminal) in the kubernetes folder, this takes some time
 3. install CloudNativePG operator: `kubectl apply -f https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/release-1.19/releases/cnpg-1.19.1.yaml`
 4. enable metrics server for autoscaling: `minikube addons enable metrics-server` 
 5. to apply configs, run in root directory of project: `kubectl apply -f kubernetes -R`
 6. port forward the nginx service: `kubectl port-forward service/nginx-service 7800:7800`
 7. access application at http://localhost:7800/
+8. to stop, run: `minikube stop`
+
+### Subsequent runs
+1. run `minikube start`
+2. if changed code, build images: `sh build-images.sh` (run in kubernetes folder)
+3. if changed configs, run `kubectl apply -f kubernetes -R` (in root directory of project)
+4. port forward the nginx service: `kubectl port-forward service/nginx-service 7800:7800`
+5. access application at http://localhost:7800/
+6. to stop, run: `minikube stop`
 
 ## Tests
 

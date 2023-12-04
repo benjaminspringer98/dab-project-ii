@@ -11,5 +11,7 @@
     href="/"
     class="text-2xl text-gray-700 font-serif m-5 hover:text-violet-700">Home</a
   >
-  <span class="mr-3 text-2xl text-gray-700 font-serif">{formatUserUuid()}</span>
+  <span id="userUuid" class="mr-3 text-2xl text-gray-700 font-serif"
+    >{formatUserUuid()}</span
+  >
 </nav>

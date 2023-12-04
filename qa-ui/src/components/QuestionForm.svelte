@@ -80,7 +80,10 @@
 </button>
 
 {#if errorMessage}
-    <p class="p-4 m-4 text-sm text-red-800 rounded-lg bg-red-50">
+    <p
+        id="errorMessage"
+        class="p-4 m-4 text-sm text-red-800 rounded-lg bg-red-50"
+    >
         {errorMessage}
     </p>
 {/if}

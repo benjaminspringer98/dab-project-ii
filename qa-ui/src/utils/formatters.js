@@ -1,3 +1,4 @@
+// show only the first part of the uuid for simplicity
 const formatUserUuid = (uuid) => {
     return uuid.split("-")[0];
 };
