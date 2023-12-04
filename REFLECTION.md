@@ -65,5 +65,7 @@ Prod:
 - also, each question/answer calls the backend to fetch upvote data (number of upvotes and whether current user has upvoted)
 - this creates a lot of api calls, which could be avoided if e.g. the api to get all questions/answers also included the number of upvotes and whether current user has upvoted
 - however, this would lead to one big sql statement, which could violate separation of concerns, as we would e.g. need to pass the user id into a function that is there for just fetching the questions/answers
+- further, other services could be scaled up in the Docker compose configs, by adding the amount of replicas needed. E.g. the llm-api or qa-bot services could be scaled, as there can be a lot of questions in the queue, for which llm answers should be generated
+- for Kubernetes, autoscaling could also be added for these services
 - not necessarily relevant for performance, but there is a lot of duplicate logic between questions, and answers, as they are almost the same, the only difference being that a question has a title column
 - some refactoring could be useful here, to (in a real world scenario) increase organizational scalability, when new team members are coming into the team, who are then able to understand the code faster
