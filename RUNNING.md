@@ -37,6 +37,8 @@ TODO: For merits, the RUNNING.md also outlines the steps needed to use Kubernete
 ### Prequisites
 
 - have Minikube + kubectl installed
+- created an alias for kubectl (as outlined in Minikube documentation)
+- users who have their own minikube cluster installed for the passing with merits requirements: maybe consider deleting your current cluster with `minikube delete`, to not interfere with the newly created pods/services here
 
 ### Setup
 
