@@ -9,6 +9,7 @@ TODO: There is a brief description of the application in REFLECTION.md that high
 - users are identified through uuid that is stored locally (only a part of it is shown in the frontend, for simplicity)
 - llm generates 3 answers for each question
 - maximum of twenty questions and answers are shown on the course page and the question page
+- users can only create one question/answers per minute (shared timer for both)
 
 ## Server Side Rendering (SSR)
 

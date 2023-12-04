@@ -2,6 +2,7 @@ import { serve, connect } from "./deps.js";
 import * as courseService from "./services/courseService.js";
 import * as questionService from "./services/questionService.js";
 import * as answerService from "./services/answerService.js";
+import * as limitService from "./services/limitService.js";
 import { cacheMethodCalls } from "./utils/cacheUtils.js";
 
 const redis = await connect({ hostname: "redis-queue", port: 6379 });
@@ -9,8 +10,8 @@ const redis = await connect({ hostname: "redis-queue", port: 6379 });
 const cachedCourseService = cacheMethodCalls(courseService, "courseService", [""]);
 const cachedQuestionService = cacheMethodCalls(questionService, "questionService", [""]);
 
-const courseRooms = new Map(); // Map for course WebSockets
-const questionRooms = new Map(); // Map for question WebSockets
+const courseRooms = new Map(); // map for course websockets
+const questionRooms = new Map(); // map for question websockets
 
 const getCourses = async (request) => {
   const courses = await cachedCourseService.findAll();
@@ -37,8 +38,8 @@ const addQuestion = async (request, urlPatternResuls) => {
     return new Response("Missing title or text", { status: 400 })
   }
 
-  // allow one question per minute per user
-  const hasUserCreatedInLastMinute = await questionService.hasUserCreatedInLastMinute(requestData.userUuid)
+  // allow one question/answer per minute per user
+  const hasUserCreatedInLastMinute = await limitService.hasUserCreatedResourceInLastMinute(requestData.userUuid)
   if (hasUserCreatedInLastMinute) {
     return new Response("Too many requests", { status: 429 })
   }
@@ -142,8 +143,8 @@ const addAnswer = async (request, urlPatternResuls) => {
     return new Response("Missing text", { status: 400 })
   }
 
-  // allow one answer per minute per user
-  const hasUserCreatedInLastMinute = await answerService.hasUserCreatedInLastMinute(requestData.userUuid)
+  // allow one question/answer per minute per user
+  const hasUserCreatedInLastMinute = await limitService.hasUserCreatedResourceInLastMinute(requestData.userUuid)
   if (hasUserCreatedInLastMinute) {
     return new Response("Too many requests", { status: 429 })
   }
@@ -186,7 +187,7 @@ const toggleAnswerUpvote = async (request, urlPatternResuls) => {
   return new Response({ status: 200 })
 }
 
-// returns number of question upvotes and whether current user has upvoted
+// returns number of answer upvotes and whether current user has upvoted
 const fetchAnswerUpvoteData = async (request, urlPatternResuls) => {
   const requestData = await request.json();
   const answerId = urlPatternResuls.pathname.groups.aId;

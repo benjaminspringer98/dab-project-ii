@@ -1,5 +1,6 @@
 ---
 import Layout from "../../layout/Layout.astro";
+import QuestionForm from "../../components/QuestionForm.svelte";
 import QuestionsListPaginated from "../../components/QuestionsListPaginated.svelte";
 
 const id = Astro.params.courseId;
@@ -10,5 +11,6 @@ const course = await response.json();
 
 <Layout>
     <h2 class="text-center text-3xl font-bold">{course.name}</h2>
+    <QuestionForm {course} client:load />
     <QuestionsListPaginated {course} client:load />
 </Layout>

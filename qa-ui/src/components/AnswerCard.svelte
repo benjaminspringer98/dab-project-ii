@@ -1,10 +1,10 @@
 <script>
+    import { userUuid } from "../stores/stores.js";
+    import { formatUserUuid, formatDate } from "../utils/formatters.js";
+
     export let answer;
     export let courseId;
     export let questionId;
-
-    import { userUuid } from "../stores/stores.js";
-    import { formatUserUuid, formatDate } from "../utils/formatters.js";
 
     const fetchUpvoteData = async () => {
         const data = {

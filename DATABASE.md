@@ -14,8 +14,8 @@ TODO for merits: Caching decisions are outlined in DATABASE.md.
 
 ## Indexes
 
-- the `EXPLAIN` SQL statement was used to analyze  queries (with 1 million records in the respective tables)
-- in the upvotes table, multi-column-indexes were created for question_id & user_uuid and answer_id & user_uuid as these columns get queried together multiple times
+- the `EXPLAIN` SQL statement was used to analyze queries (with 1 million records in the respective tables)
+- in the upvotes table, multi-column-indexes were created for question_id & user_uuid / answer_id & user_uuid as these columns get queried together multiple times
 - benefits:
     - query both columns: around 0.5% of the previous execution time
     - query question_id: around 50% of the previous execution time

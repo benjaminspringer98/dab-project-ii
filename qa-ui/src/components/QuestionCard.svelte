@@ -1,9 +1,9 @@
 <script>
-    export let question;
-    export let courseId;
-
     import { userUuid } from "../stores/stores.js";
     import { formatUserUuid, formatDate } from "../utils/formatters.js";
+
+    export let question;
+    export let courseId;
 
     const fetchUpvoteData = async () => {
         const data = {

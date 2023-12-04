@@ -19,23 +19,6 @@ const findById = async (id) => {
 }
 
 // sort by most recent activity (question creation or upvote)
-const findAllByCourseId = async (courseId) => {
-    return await sql`SELECT q.*, GREATEST(q.created_at, COALESCE(latest_upvote, '4713-01-01 00:00:00 BC')) as most_recent_activity
-                        FROM questions q
-                        LEFT JOIN (
-                            SELECT 
-                                question_id, 
-                                MAX(created_at) as latest_upvote
-                            FROM 
-                                upvotes
-                            GROUP BY 
-                                question_id
-                        ) u ON q.id = u.question_id
-                        WHERE q.course_id = ${courseId}
-                        ORDER BY most_recent_activity DESC
-                        LIMIT 20`;
-}
-
 const findAllByCourseIdPaginated = async (courseId, pageNumber) => {
     const questionsPerPage = 20;
     const offset = (pageNumber - 1) * questionsPerPage;
@@ -76,19 +59,4 @@ const toggleUpvote = async (questionId, userUuid) => {
     await sql`INSERT into upvotes (question_id, user_uuid, type, created_at) VALUES (${questionId}, ${userUuid}, 'question', NOW())`;
 }
 
-const hasUserCreatedInLastMinute = async (userUuid) => {
-    const lastQuestion = await sql`SELECT * FROM questions WHERE user_uuid = ${userUuid} ORDER BY created_at DESC LIMIT 1`;
-
-    if (lastQuestion.length > 0) {
-        const lastQuestionTime = lastQuestion[0].created_at;
-        const now = new Date();
-        const diff = now - lastQuestionTime;
-        const seconds = Math.floor(diff / 1000);
-        console.log("seconds: " + seconds);
-        return seconds <= 60;
-    }
-
-    return false;
-}
-
-export { add, findById, findAllByCourseId, findAllByCourseIdPaginated, getUpvotesCount, hasUserUpvoted, toggleUpvote, hasUserCreatedInLastMinute }
+export { add, findById, findAllByCourseIdPaginated, getUpvotesCount, hasUserUpvoted, toggleUpvote }
